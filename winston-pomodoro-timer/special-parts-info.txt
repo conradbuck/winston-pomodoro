@@ -1,0 +1,4 @@
+This board uses this 16mhz crystal oscillator: X322516MRB4SI
+
+https://www.lcsc.com/product-detail/SMD-Crystals_Yangxing-Tech-X322516MRB4SI_C70562.html
+
