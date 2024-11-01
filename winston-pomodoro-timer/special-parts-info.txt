@@ -1,4 +1,11 @@
 This board uses this 16mhz crystal oscillator: X322516MRB4SI
 
-https://www.lcsc.com/product-detail/SMD-Crystals_Yangxing-Tech-X322516MRB4SI_C70562.html
+Listing: https://www.lcsc.com/product-detail/SMD-Crystals_Yangxing-Tech-X322516MRB4SI_C70562.html
 
+USB-C recepticle
+Modeling:
+	listing: https://www.snapeda.com/parts/UJC-HP-3-SMT-TR/Same%20Sky/view-part/?t=SHOU+HAN+TYPE-C+6PIN
+	datasheet: https://www.snapeda.com/parts/UJC-HP-3-SMT-TR/Same%20Sky/datasheet/
+Manufacturing:
+	Listing: https://www.lcsc.com/product-detail/span-style-background-color-ff0-USB-span-Connectors_SHOU-HAN-TYPE-C-6PIN_C7507406.html
+	Datasheet: https://www.lcsc.com/datasheet/lcsc_datasheet_2405301718_SHOU-HAN-TYPE-C-6PIN_C7507406.pdf
