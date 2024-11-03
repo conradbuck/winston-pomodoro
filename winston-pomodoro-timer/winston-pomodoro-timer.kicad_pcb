@@ -82,9 +82,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory "")
+      (outputdirectory "pomo-manufacturing/")
     )
   )
 
@@ -6395,9 +6395,9 @@
       (stroke (width 0.1) (type solid)) (layer "F.Fab") (tstamp 3e766b99-bb38-4ba9-81d6-697a4815d6e4))
     (fp_line (start 1 0.625) (end -1 0.625)
       (stroke (width 0.1) (type solid)) (layer "F.Fab") (tstamp e0eb7b6e-4b96-48be-94e1-4aeefc65fcdf))
-    (pad "1" smd roundrect (at -1.0375 0) (size 1.175 1.45) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.212766)
+    (pad "1" smd roundrect (at -1.0375 0) (size 1.175 1.45) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.2127659574)
       (net 5 "/RST") (pintype "passive") (tstamp 37594c6a-bdcd-4fb8-a082-14073526c22a))
-    (pad "2" smd roundrect (at 1.0375 0) (size 1.175 1.45) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.212766)
+    (pad "2" smd roundrect (at 1.0375 0) (size 1.175 1.45) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.2127659574)
       (net 4 "+5V") (pintype "passive") (tstamp 238e8468-06b5-4422-8d17-8445ae198aca))
     (model "${KICAD6_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0805_2012Metric.wrl"
       (offset (xyz 0 0 0))
@@ -16426,10 +16426,10 @@
     (fill yes (thermal_gap 0.5) (thermal_bridge_width 0.5))
     (polygon
       (pts
-        (xy 247.6 57.2)
-        (xy 250.4 115.6)
-        (xy 107 111.8)
-        (xy 104.8 46.6)
+        (xy 248.1 54.6)
+        (xy 249.5 111.5)
+        (xy 108.8 109)
+        (xy 106.3 53.5)
       )
     )
     (filled_polygon
