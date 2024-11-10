@@ -1,0 +1,33 @@
+//Crystal Oscillator//
+This board uses this 16mhz crystal oscillator: X322516MRB4SI
+
+Listing: https://www.lcsc.com/product-detail/SMD-Crystals_Yangxing-Tech-X322516MRB4SI_C70562.html
+
+//USB-C recepticle//
+Modeling:
+	listing: https://www.snapeda.com/parts/UJC-HP-3-SMT-TR/Same%20Sky/view-part/?t=SHOU+HAN+TYPE-C+6PIN
+	datasheet: https://www.snapeda.com/parts/UJC-HP-3-SMT-TR/Same%20Sky/datasheet/
+Manufacturing:
+	Listing: https://www.lcsc.com/product-detail/span-style-background-color-ff0-USB-span-Connectors_SHOU-HAN-TYPE-C-6PIN_C7507406.html
+	Datasheet: https://www.lcsc.com/datasheet/lcsc_datasheet_2405301718_SHOU-HAN-TYPE-C-6PIN_C7507406.pdf
+
+//JST Lipo battery connector HDGC HDGC2001WV-2P// using 2mm pitch pin header
+Listing: https://www.lcsc.com/product-detail/Wire-To-Board-Connector_HDGC-HDGC2001WV-2P_C5175230.html
+
+Datasheet:https://www.lcsc.com/datasheet/lcsc_datasheet_2410121318_HDGC-HDGC2001WV-2P_C5175230.pdf
+
+Battery considerations:
+stops charging when full 			yes charges to 4.2V
+charges when device is off 			yes
+charges when device is on 			yes
+disconnects system from battery when dead	Yes R10/R11 divider
+
+PCB Feedback from Kevin
+-add esd protection chip to board to protect usb data lines when using an onboard programming port (usb-c port), not necessary if using external ftdi chip
+-breakout PGOOD and CHG pins to GPIO on arduino so you can have battery indications reflected in LEDs display
+
+-see if you can use deep sleep commands on arduino to minimize battery usage when timer and LEDs not running
+-use a mosfet to disable power input to LEDs since they have relatively high leakage current when not in use
+-switch to a 3.3v microcontroller so you can also disable boost converter that serves LEDs to save additional power
+-follow exact chip layouts provided in datasheets, they are specifically designed to help reduce noise and increase reliability
+-put a big ground (with +5V net) under VDD of LEDs for better power distribution and thermal management
