@@ -120,7 +120,9 @@ CRGB restTimeRun = CHSV(12, 255, 255);
 
 void setup() {
 	pinMode(LEFT, INPUT_PULLUP);
-
+  pinMode(RIGHT, INPUT_PULLUP);
+  pinMode(PUSH, INPUT_PULLUP);
+  
 	FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 	delay(500);
 	FastLED.setBrightness(BRIGHTNESS);
