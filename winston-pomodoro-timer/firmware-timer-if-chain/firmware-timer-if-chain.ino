@@ -8,7 +8,7 @@
 #define RIGHT 9
 #define PUSH 10
 
-int lengthOfSecond = 5; //length of a second in ms
+int lengthOfSecond = 50; //length of a second in ms
 
 int longPressDuration = 1000;
 
@@ -429,7 +429,6 @@ void loop() {
     }
     FastLED.setBrightness(fadeVal);
     FastLED.show();
-
     //switch this to delayTime for non-blocking
     delay(fadeSpeed * 1.0 * (255 / BRIGHTNESS));
   } else if(timerState == 7) { //finish timer
@@ -448,7 +447,7 @@ void loop() {
         indicies[i]++;
       }
       FastLED.show();
-      delay(5);
+      delay(10);
     }
     timerState = 0;
     firstRun = 1;
