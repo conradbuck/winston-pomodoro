@@ -2,7 +2,7 @@
 
 #define LED_PIN 2
 #define NUM_LEDS 10
-#define BRIGHTNESS 100
+#define BRIGHTNESS 80
 
 #define LEFT 8
 #define RIGHT 9
@@ -33,12 +33,16 @@ int fadeSpeed = 5;
 //1
 int workInc = 5; //how much each click of the knob increases time in minutes
 int workTimeLeft = 0;
+int workTimeTot = 0;
 //2
-int restInc = 5; //increase in time between click in minutes
+int restInc = 3; //increase in time between click in minutes
 int restTimeLeft = 0;
+int restTimeTot = 0;
 
 //utility variables
 bool exitDetected = 0;
+int secondCount = 0;
+unsigned long timerPace;
 unsigned long difference;
 int index = 0;
 bool firstRun = 0;
@@ -131,6 +135,7 @@ void setup() {
 	FastLED.setBrightness(BRIGHTNESS);
 	FastLED.show();
   difference = millis();
+  timerPace = millis();
   
   timerState = 0;
   firstRun = 1;
@@ -143,7 +148,13 @@ void loop() {
   }
   exitDetected = 0;
   
-	switch(timerState) {
+  if(timerState == 6) {
+    //Serial.println("timer state 6 at the top");
+    
+    //delay(350);
+  }
+  timerState = 6;
+	switch(7) {
 		case 0: //idle state
       if(firstRun) {
         Serial.println("mode 0");
@@ -152,7 +163,6 @@ void loop() {
         firstRun = 0;
       }
       
-      Serial.println(buttonState);
       if(buttonState == 2) {
         //long press registered
         //change backgroundColor mode??
@@ -212,6 +222,7 @@ void loop() {
           leds[i] = workTimeSet;
          }
          workTimeLeft = workInc * index; //length of timer in mins
+         workTimeTot = workTimeLeft;
          FastLED.show();
       }
       break;
@@ -228,7 +239,7 @@ void loop() {
         delay(20);
         
       } else if(buttonState == 1) {
-        timerState = 4;
+        timerState = 5;
         firstRun = 1;
       } else {
          index += delta;
@@ -238,6 +249,7 @@ void loop() {
           leds[i] = restTimeSet;
          }
          restTimeLeft = restInc * index; //length of timer in mins
+         restTimeTot = restTimeLeft;
          FastLED.show();
       }
       break;
@@ -251,10 +263,12 @@ void loop() {
         workTimer = 1;
         firstRun = 0;
       }
-      if(buttonState = 1) { //pause timer
+      if(buttonState == 1) { //pause timer
         timerState = 6;
+        
+        firstRun = 1;
       }
-      if(millis() % 60*1000 == 0) {
+      if(millis() % 1000 == 0) {
         workTimeLeft -= 1;
       }
       if(workTimeLeft == 0) {
@@ -269,41 +283,79 @@ void loop() {
       break;
     case 5: //running rest timer
       if(firstRun) {
+        Serial.println("mode 5");
+        
+        Serial.print("minutes set: ");
+        Serial.println(restTimeLeft);
+        
         workTimer = 0;
         firstRun = 0;
+        timerPace = millis();
       }
-      if(buttonState = 1) { //pause timer
+      if(buttonState == 1) { //pause timer
         timerState = 6;
-      }
-      if(millis() % 60*1000 == 0) {
-        restTimeLeft -= 1;
+        firstRun = 1;
+        
+        Serial.println("actviate state 6 ");
+        return;
+      }      
+      if(millis() - timerPace >= 100) {
+        timerPace = millis();
+        secondCount++;
+        if(secondCount >= 60){
+          restTimeLeft -= 1;
+          
+          Serial.print("minutes remaining: ");
+          Serial.println(restTimeLeft);
+          
+          secondCount = 0;
+        }
+        Serial.println(secondCount);
       }
       if(restTimeLeft == 0) {
         timerState = 7;
-      }
-      fill_solid(leds, NUM_LEDS, backgroundColor);
-      for(int i = 0; i < (restTimeLeft / restInc); i++) {
-        leds[i] = restTimeRun;
-      }
-      FastLED.show();
-      break;
-    case 6: //pause timer
-      if(firstRun) {
-        firstRun = 0;
-      }
-      if(buttonState = 1) {
-
-        if(workTimer) { //return to work timer
-          timerState = 4;
-        } else { //return to rest timer
-          timerState = 5;
-        }
-      } else {
+        firstRun = 1;
         
+        Serial.println("actviate state 7 ");
+        return;
       }
       
+      fill_solid(leds, NUM_LEDS, backgroundColor);
+      int toFill = restTimeLeft / restInc;
+      for(int i = 0; i < toFill; i++) {
+        leds[i] = restTimeRun;
+      }
+      if(toFill < NUM_LEDS - 1) {
+        //leds[toFill] = CRGB(restTimeRun.r * restTimeLeft % restInc / restInc, restTimeRun.g * restTimeLeft % restInc / restInc, restTimeRun.b * restTimeLeft % restInc / restInc);
+        leds[toFill] = CRGB::Green;
+      }
+      FastLED.show();      
+      break;
+    case 6: //pause timer
+      Serial.println("in state 6 now");
+//      if(firstRun) {
+//        firstRun = 0;
+//        Serial.println("paused");
+//      }
+      FastLED.setBrightness(BRIGHTNESS);
+      fill_solid(leds, NUM_LEDS, CRGB::Blue);
+      FastLED.show();
+      Serial.println("paused-mid");
+      
+//      if(buttonState == 1) {
+//        if(workTimer) { //return to work timer
+//          timerState = 4;
+//          firstRun = 1;
+//        } else { //return to rest timer
+//          timerState = 5;
+//          firstRun = 1;
+//        }
+//      } else {
+//        
+//      }
       break;
     case 7: //finish timer
+      FastLED.setBrightness(BRIGHTNESS);
       fill_solid(leds, NUM_LEDS, CRGB::Blue);
       FastLED.show();
       delay(150);
@@ -335,5 +387,10 @@ void loop() {
       firstRun = 1;
       Serial.println("end time");
       break;
+    default:
+      Serial.print("Unexpected timerState: ");
+      Serial.println(timerState);
+      break;
 	}
+ 
 }
