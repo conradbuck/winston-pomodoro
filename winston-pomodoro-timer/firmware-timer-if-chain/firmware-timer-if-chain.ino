@@ -8,7 +8,7 @@
 #define RIGHT 9
 #define PUSH 10
 
-int lengthOfSecond = 50; //length of a second in ms
+int lengthOfSecond = 1000; //length of a second in ms
 
 int longPressDuration = 1000;
 

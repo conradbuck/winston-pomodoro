@@ -154,7 +154,7 @@ void loop() {
     //delay(350);
   }
   timerState = 6;
-	switch(7) {
+	switch(timerState) {
 		case 0: //idle state
       if(firstRun) {
         Serial.println("mode 0");
@@ -297,7 +297,8 @@ void loop() {
         firstRun = 1;
         
         Serial.println("actviate state 6 ");
-        return;
+        //return;
+        break;
       }      
       if(millis() - timerPace >= 100) {
         timerPace = millis();
@@ -317,7 +318,8 @@ void loop() {
         firstRun = 1;
         
         Serial.println("actviate state 7 ");
-        return;
+        //return;
+        break;
       }
       
       fill_solid(leds, NUM_LEDS, backgroundColor);
@@ -333,26 +335,6 @@ void loop() {
       break;
     case 6: //pause timer
       Serial.println("in state 6 now");
-//      if(firstRun) {
-//        firstRun = 0;
-//        Serial.println("paused");
-//      }
-      FastLED.setBrightness(BRIGHTNESS);
-      fill_solid(leds, NUM_LEDS, CRGB::Blue);
-      FastLED.show();
-      Serial.println("paused-mid");
-      
-//      if(buttonState == 1) {
-//        if(workTimer) { //return to work timer
-//          timerState = 4;
-//          firstRun = 1;
-//        } else { //return to rest timer
-//          timerState = 5;
-//          firstRun = 1;
-//        }
-//      } else {
-//        
-//      }
       break;
     case 7: //finish timer
       FastLED.setBrightness(BRIGHTNESS);
