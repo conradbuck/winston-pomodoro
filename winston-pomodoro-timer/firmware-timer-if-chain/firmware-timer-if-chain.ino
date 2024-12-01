@@ -36,11 +36,11 @@ bool fadeDir = 0;
 int fadeVal = 0;
 int fadeSpeed = 5;
 //1
-int workInc = 5; //how much each click of the knob increases time in minutes
+int workInc = 10; //how much each click of the knob increases time in minutes - chart stage C
 int workTimeLeft = 0;
 int workTimeTot = 0;
 //2
-int restInc = 5; //increase in time between click in minutes
+int restInc = 2; //increase in time between click in minutes - chart Stage G
 int restTimeLeft = 0;
 int restTimeTot = 0;
 //3
@@ -181,7 +181,12 @@ void loop() {
       fadeDir = 0;
       firstRun = 0;
     }
-    
+    if(delta != 0) {
+      timerState = 1;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS);
+      FastLED.show();
+    }
     if(buttonState == 2) {
       //long press registered
       //change backgroundColor mode??
