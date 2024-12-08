@@ -2,15 +2,15 @@
 
 #define LED_PIN 2
 #define NUM_LEDS 10
-#define BRIGHTNESS 50
+#define BRIGHTNESS 100
 
 #define LEFT 8
 #define RIGHT 9
 #define PUSH 10
 
-int lengthOfSecond = 1000; //length of a second in ms
+int lengthOfSecond = 10; //length of a second in ms
 
-int longPressDuration = 1000;
+int longPressDuration = 1250;
 
 uint8_t workHue = 165;
 uint8_t restHue = 12;
@@ -51,6 +51,7 @@ bool exitDetected = 0;
 int secondCount = 0;
 unsigned long timerPace;
 unsigned long difference;
+unsigned long difference2;
 int index = 0;
 bool firstRun = 0;
 bool workTimer = 0;
@@ -67,12 +68,16 @@ int rangeNumber(int num, int lower, int upper) { //range a number between lower 
 }
 
 boolean delayTime(uint16_t delayamnt) {
-  difference = millis();
-  while(millis() - difference < delayamnt) {
+  difference2 = millis();
+  while(millis() - difference2 < delayamnt) {
     delta = rotary();
     buttonState = pollButton();
     //if(delta != 0 || buttonState != 0) {
     if(buttonState != 0) {
+      exitDetected = 1;
+      return true;
+    }
+    if(delta != 0) {
       exitDetected = 1;
       return true;
     }
@@ -140,6 +145,21 @@ void printLEDstate() {
   Serial.println();
 }
 
+void displayLEDS() {
+  reverseStrip();
+  FastLED.show();
+}
+
+void reverseStrip() {
+  CRGB leds2[NUM_LEDS];
+  for(int i = 0; i < NUM_LEDS; i++) {
+    leds2[i] = leds[i];
+  }
+  for(int i = 0; i < NUM_LEDS; i++) {
+    leds[i] = leds2[NUM_LEDS - i - 1];
+  }
+}
+
 CRGB backgroundColor = CRGB::White;
 CRGB workTimeSet = CHSV(workHue, 180, 255);
 CRGB workTimeRun = CHSV(workHue, 255, 255);
@@ -155,12 +175,14 @@ void setup() {
 	FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
 	delay(500);
 	FastLED.setBrightness(BRIGHTNESS);
-	FastLED.show();
+	displayLEDS();
   difference = millis();
   timerPace = millis();
   
   timerState = 0;
   firstRun = 1;
+  exitDetected = 0;
+  delay(200);
 }
 
 void loop() {
@@ -170,34 +192,23 @@ void loop() {
   }
   exitDetected = 0;
   
-  if(timerState == 6) {
-    //Serial.println("timer state 6 at the top");
-    
-    //delay(350);
-  }
   if(timerState == 0) { //idle state
     if(firstRun) {
       fadeVal = 128;
       fadeDir = 0;
       firstRun = 0;
     }
-    if(delta != 0) {
-      timerState = 1;
-      firstRun = 1;
-      FastLED.setBrightness(BRIGHTNESS);
-      FastLED.show();
-    }
+    
     if(buttonState == 2) {
-      //long press registered
-      //change backgroundColor mode??
-      while(!digitalRead(PUSH)) {}
-      delay(20);
-      
+//      timerState = 0;
+//      firstRun = 1;
+//      while(!digitalRead(PUSH)) {}
+//      delay(20);
     } else if(buttonState == 1) {
       timerState = 1;
       firstRun = 1;
       FastLED.setBrightness(BRIGHTNESS);
-      FastLED.show();
+      displayLEDS();
     } else {
       fill_solid(leds, NUM_LEDS, backgroundColor);
       if(fadeDir) {
@@ -216,19 +227,32 @@ void loop() {
         }
       }
       FastLED.setBrightness(fadeVal);
-      FastLED.show();
-
+      displayLEDS();
       //switch this to delayTime for non-blocking
-      delay(fadeSpeed * 1.0 * (255 / BRIGHTNESS));
+      delayTime(fadeSpeed * 1.0 * (255 / BRIGHTNESS));
+      //delay(fadeSpeed * 1.0 * (255 / BRIGHTNESS));
+    }
+    if(delta != 0) {
+      timerState = 1;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS);
+      displayLEDS();
     }
   } else if(timerState == 1) { //set work timer
     if(firstRun) {
       firstRun = 0;
-      index = NUM_LEDS / 2 - 1;
+      delta = 0;
+      //index = NUM_LEDS / 2 - 1;
+      index = 0;
     }
     if(buttonState == 2) {
       //long press registered
       
+      timerState = 0;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS * 1.0 * 0.35);
+       fill_solid(leds, NUM_LEDS, backgroundColor);
+       FastLED.show();
       while(!digitalRead(PUSH)) {}
       delay(20);
       
@@ -244,37 +268,51 @@ void loop() {
        }
        workTimeLeft = workInc * (index + 1); //length of timer in mins
        workTimeTot = workTimeLeft;
-       FastLED.show();
+       displayLEDS();
     }
   } else if(timerState == 2) { //set rest timer
     if(firstRun) {
       firstRun = 0;
-      index = NUM_LEDS / 2 - 1;
+      //index = NUM_LEDS / 2 - 1;
+      index = -1;
     }
     if(buttonState == 2) {
       //long press registered
       
+      timerState = 0;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS * 1.0 * 0.35);
+       fill_solid(leds, NUM_LEDS, backgroundColor);
+       FastLED.show();
       while(!digitalRead(PUSH)) {}
       delay(20);
       
     } else if(buttonState == 1) {
-      timerState = 3;
-      firstRun = 1;
+      if(restTimeLeft == 0) {
+        timerState = 4;
+        firstRun = 1;
+      } else {
+        timerState = 3;
+        firstRun = 1;
+      }
+      Serial.println(restTimeLeft);
     } else {
        index += delta;
-       index = rangeNumber(index, 0, NUM_LEDS);
+       index = rangeNumber(index, -1, NUM_LEDS);
        fill_solid(leds, NUM_LEDS, backgroundColor);
-       for(int i = 0; i <= index; i++) {
-        leds[i] = restTimeSet;
+       if(index >= 0) {
+         for(int i = 0; i <= index; i++) {
+          leds[i] = restTimeSet;
+         }
        }
        restTimeLeft = restInc * (index + 1); //length of timer in mins
        restTimeTot = restTimeLeft;
-       FastLED.show();
+       displayLEDS();
     }
   } else if(timerState == 3) { //set num cycles
     if(firstRun) {
       fill_solid(leds, NUM_LEDS, CRGB::Black);
-      FastLED.show();
+      displayLEDS();
     }
     if(delta != 0 || firstRun) {
       remainingCycles += delta;
@@ -287,10 +325,19 @@ void loop() {
       for(int i = 0; i < remainingCycles; i++) {
         leds[i] = backgroundColor;
       }
-      FastLED.show();
+      displayLEDS();
     }
     firstRun = 0;
-    if(buttonState == 1) {
+    
+    if(buttonState == 2) {
+      timerState = 0;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS * 1.0 * 0.35);
+       fill_solid(leds, NUM_LEDS, backgroundColor);
+       FastLED.show();
+      while(!digitalRead(PUSH)) {}
+      delay(20);
+    } else if(buttonState == 1) {
       timerState = 4;
       firstRun = 1;
       Serial.print("desired cycles: ");
@@ -314,7 +361,15 @@ void loop() {
       timerPace = millis();
       firstRun = 0;
     }
-    if(buttonState == 1) { //pause timer
+    if(buttonState == 2) {
+      timerState = 0;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS * 1.0 * 0.35);
+       fill_solid(leds, NUM_LEDS, backgroundColor);
+       FastLED.show();
+      while(!digitalRead(PUSH)) {}
+      delay(20);
+    } else if(buttonState == 1) { //pause timer
       timerState = 6;
       firstRun = 1;
       return;
@@ -345,7 +400,7 @@ void loop() {
         leds[currLED] = CHSV(workHue, 255, 255 - (10 * (10 - percentLeft)));
       }
       //printLEDstate();
-      FastLED.show();
+      displayLEDS();
     }
     
   } else if(timerState == 5) { //running rest timer
@@ -360,7 +415,15 @@ void loop() {
       firstRun = 0;
       timerPace = millis();
     }
-    if(buttonState == 1) { //pause timer
+    if(buttonState == 2) {
+      timerState = 0;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS * 1.0 * 0.35);
+       fill_solid(leds, NUM_LEDS, backgroundColor);
+       FastLED.show();
+      while(!digitalRead(PUSH)) {}
+      delay(20);
+    } else if(buttonState == 1) { //pause timer
       timerState = 6;
       firstRun = 1;
       return;
@@ -398,7 +461,7 @@ void loop() {
         leds[currLED] = CHSV(restHue, 255, 255 - (10 * (10 - percentLeft)));
       }
       //printLEDstate();
-      FastLED.show();
+      displayLEDS();
     }
   } else if(timerState == 6) { //pause timer
     if(firstRun) {
@@ -406,10 +469,18 @@ void loop() {
       Serial.println("mode 6");
     }
     
-    if(buttonState == 1) {
+    if(buttonState == 2) {
+      timerState = 0;
+      firstRun = 1;
+      FastLED.setBrightness(BRIGHTNESS * 1.0 * 0.35);
+       fill_solid(leds, NUM_LEDS, backgroundColor);
+       FastLED.show();
+      while(!digitalRead(PUSH)) {}
+      delay(20);
+    } else if(buttonState == 1) {
       firstRun = 1;
       FastLED.setBrightness(BRIGHTNESS);
-      FastLED.show();
+      displayLEDS();
       if(workTimer) { //return to work timer
         timerState = 4;
       } else { //return to rest timer
@@ -433,7 +504,7 @@ void loop() {
       }
     }
     FastLED.setBrightness(fadeVal);
-    FastLED.show();
+    displayLEDS();
     //switch this to delayTime for non-blocking
     delay(fadeSpeed * 1.0 * (255 / BRIGHTNESS));
   } else if(timerState == 7) { //finish timer
@@ -451,7 +522,7 @@ void loop() {
         leds[i] = CHSV(indicies[i], 255, 255);
         indicies[i]++;
       }
-      FastLED.show();
+      displayLEDS();
       delay(10);
     }
     timerState = 0;
